@@ -2,8 +2,22 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>フリマ電卓</title>
+
+<!-- PWA設定 -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff5722">
+
+<!-- iOS用設定 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="フリマ電卓">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+<!-- 通常のfavicon -->
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+
 <style>
   :root {
     --primary: #ff6b3d;
@@ -21,12 +35,16 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* セーフエリア対応（iPhoneのノッチ等） */
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
     background: var(--bg);
     color: var(--text);
     padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
     line-height: 1.6;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .container {
@@ -62,13 +80,13 @@
 
   .platform-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
   }
   .platform-btn {
-    padding: 14px;
+    padding: 8px 4px;
     border: 1.5px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     background: white;
     cursor: pointer;
     text-align: center;
@@ -79,9 +97,9 @@
     border-color: var(--primary);
     background: var(--primary-light);
   }
-  .platform-btn .name { font-weight: 700; font-size: 15px; }
+  .platform-btn .name { font-weight: 700; font-size: 12px; line-height: 1.2; }
   .platform-btn.active .name { color: var(--primary); }
-  .platform-btn .fee { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+  .platform-btn .fee { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
   .platform-btn.active .fee { color: var(--primary-dark); }
 
   .fee-row {
@@ -126,13 +144,13 @@
 
   .shipping-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
   }
   .ship-btn {
-    padding: 10px 6px;
+    padding: 8px 4px;
     border: 1.5px solid var(--border);
-    border-radius: 10px;
+    border-radius: 8px;
     background: white;
     cursor: pointer;
     text-align: center;
@@ -143,8 +161,8 @@
     border-color: var(--primary);
     background: var(--primary-light);
   }
-  .ship-btn .name { font-weight: 700; font-size: 13px; }
-  .ship-btn .price { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+  .ship-btn .name { font-weight: 700; font-size: 11px; line-height: 1.2; }
+  .ship-btn .price { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
   .ship-btn.active .name { color: var(--primary); }
 
   .custom-ship {
@@ -204,7 +222,6 @@
   }
   .profit-row .val-big.neg { color: var(--danger); }
 
-  /* 損益分岐点カード（新機能） */
   .breakeven-card {
     margin-top: 16px;
     background: linear-gradient(135deg, #fff5ef, #ffe5d6);
@@ -271,7 +288,6 @@
     <p>仕入・手数料・送料を差し引いた利益を計算</p>
   </div>
 
-  <!-- プラットフォーム選択 -->
   <div class="section">
     <div class="label">プラットフォーム</div>
     <div class="platform-grid">
@@ -284,7 +300,7 @@
         <div class="fee">手数料 6%</div>
       </div>
       <div class="platform-btn" data-fee="5">
-        <div class="name">PayPayフリマ</div>
+        <div class="name">PayPay</div>
         <div class="fee">手数料 5%</div>
       </div>
       <div class="platform-btn" data-fee="8.8">
@@ -299,30 +315,27 @@
     </div>
   </div>
 
-  <!-- 仕入金額 -->
   <div class="section">
     <div class="label">仕入金額</div>
     <div class="input-box">
       <span class="yen">¥</span>
-      <input type="number" id="cost" placeholder="0" min="0">
+      <input type="number" id="cost" placeholder="0" min="0" inputmode="numeric">
     </div>
   </div>
 
-  <!-- 販売価格 -->
   <div class="section">
     <div class="label">販売価格</div>
     <div class="input-box">
       <span class="yen">¥</span>
-      <input type="number" id="price" placeholder="0" min="0">
+      <input type="number" id="price" placeholder="0" min="0" inputmode="numeric">
     </div>
   </div>
 
-  <!-- 送料 -->
   <div class="section">
     <div class="label">送料 <span class="label-sub">（メルカリ基準）</span></div>
     <div class="shipping-grid">
-      <div class="ship-btn" data-ship="210"><div class="name">ネコポス</div><div class="price">¥210</div></div>
       <div class="ship-btn" data-ship="160"><div class="name">ゆうパケmini</div><div class="price">¥160</div></div>
+      <div class="ship-btn" data-ship="210"><div class="name">ネコポス</div><div class="price">¥210</div></div>
       <div class="ship-btn" data-ship="215"><div class="name">ゆうパケポスト</div><div class="price">¥215</div></div>
       <div class="ship-btn" data-ship="530"><div class="name">コンパクト</div><div class="price">¥530</div></div>
       <div class="ship-btn" data-ship="750"><div class="name">宅急便60</div><div class="price">¥750</div></div>
@@ -331,11 +344,10 @@
     </div>
     <div class="custom-ship">
       <span class="ship-label">カスタム送料</span>
-      <input type="number" id="customShip" placeholder="0" min="0">
+      <input type="number" id="customShip" placeholder="0" min="0" inputmode="numeric">
     </div>
   </div>
 
-  <!-- 計算結果 -->
   <div class="result-section">
     <div class="result-title">計算結果</div>
     <div class="result-row"><span>販売価格</span><span class="val" id="rPrice">¥0</span></div>
@@ -347,7 +359,6 @@
       <span class="val-big" id="rProfit">¥0</span>
     </div>
 
-    <!-- 🆕 損益分岐点カード -->
     <div class="breakeven-card" id="breakevenCard">
       <div class="be-label">⚖️ 損益分岐点（最低販売価格）</div>
       <div class="be-desc">これより安く売ると赤字になる金額です</div>
@@ -361,7 +372,6 @@
 </div>
 
 <script>
-  // 状態
   let state = {
     feeRate: 10,
     cost: 0,
@@ -371,7 +381,6 @@
 
   const yen = (n) => '¥' + Math.round(n).toLocaleString();
 
-  // プラットフォーム選択
   document.querySelectorAll('.platform-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
@@ -383,13 +392,11 @@
     });
   });
 
-  // 手数料率変更
   document.getElementById('feeRate').addEventListener('input', (e) => {
     state.feeRate = parseFloat(e.target.value) || 0;
     calc();
   });
 
-  // 送料ボタン
   document.querySelectorAll('.ship-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.ship-btn').forEach(b => b.classList.remove('active'));
@@ -400,7 +407,6 @@
     });
   });
 
-  // カスタム送料
   document.getElementById('customShip').addEventListener('input', (e) => {
     const v = parseInt(e.target.value) || 0;
     if (v > 0) {
@@ -412,7 +418,6 @@
     calc();
   });
 
-  // 仕入・販売価格
   document.getElementById('cost').addEventListener('input', (e) => {
     state.cost = parseInt(e.target.value) || 0;
     calc();
@@ -422,7 +427,6 @@
     calc();
   });
 
-  // 計算
   function calc() {
     const fee = state.price * (state.feeRate / 100);
     const profit = state.price - fee - state.shipping - state.cost;
@@ -437,18 +441,12 @@
     profitEl.textContent = (profit < 0 ? '-' : '') + yen(Math.abs(profit));
     profitEl.classList.toggle('neg', profit < 0);
 
-    // 🆕 損益分岐点を計算
-    // 利益 = 価格 - 価格 × 手数料率 - 送料 - 仕入
-    // 利益 = 0 になる価格を求める
-    // 価格 × (1 - 手数料率) = 送料 + 仕入
-    // 価格 = (送料 + 仕入) ÷ (1 - 手数料率)
     const card = document.getElementById('breakevenCard');
     const valueEl = document.getElementById('breakevenValue');
     const hintEl = document.getElementById('breakevenHint');
 
     const feeRatio = state.feeRate / 100;
     if (feeRatio >= 1) {
-      // 手数料100%以上は計算不能
       card.classList.add('invalid');
       valueEl.textContent = '計算できません';
       hintEl.textContent = '手数料率が高すぎます';
@@ -464,13 +462,11 @@
     }
 
     const breakeven = totalCost / (1 - feeRatio);
-    // 1円単位で切り上げ（赤字を防ぐため）
     const breakevenCeil = Math.ceil(breakeven);
 
     card.classList.remove('invalid');
     valueEl.textContent = yen(breakevenCeil);
 
-    // 現在の販売価格との比較ヒント
     if (state.price === 0) {
       hintEl.textContent = `この価格以上で売れば赤字になりません`;
     } else if (state.price >= breakevenCeil) {
@@ -482,7 +478,6 @@
     }
   }
 
-  // リセット
   document.getElementById('resetBtn').addEventListener('click', () => {
     state = { feeRate: 10, cost: 0, price: 0, shipping: 0 };
     document.getElementById('cost').value = '';
@@ -496,8 +491,14 @@
     calc();
   });
 
-  // 初期計算
   calc();
+
+  // Service Worker登録（オフライン対応）
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW登録失敗:', err));
+    });
+  }
 </script>
 
 </body>
